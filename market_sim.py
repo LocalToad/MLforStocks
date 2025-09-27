@@ -1,5 +1,11 @@
-from random import randint
+import random
 
+
+def randfloat(a,b,c):
+    scale = a-b
+    add = scale*c
+    value = add+b
+    return value
 
 def buy_request(buy_amt,portfolio, ticker, data, day_id):
     cash = portfolio['cash']
@@ -7,10 +13,10 @@ def buy_request(buy_amt,portfolio, ticker, data, day_id):
     #we are going to randomize a prize based on the data, and then fufil the order if its possible
     high = list(data['High'][ticker])[day_id]
     low = list(data['Low'][ticker])[day_id]
-    buy_price = randint(low, high)
+    buy_price = randfloat(high,low,random.random())
     buy_order = buy_amt * buy_price
     if buy_order <= cash:
-        cash -= buy_order
+        portfolio['cash'] -= buy_order
         portfolio['stocks'][ticker][0] += buy_amt
         portfolio['stocks'][ticker][1] += buy_order
         return portfolio

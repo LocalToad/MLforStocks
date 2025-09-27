@@ -5,11 +5,10 @@ import numpy as np
 
 
 class Agent:
-    def __init__(self, inputs, outputs, hidden_layers=0, nodes=0):
+    def __init__(self, inputs, outputs, hidden_layers=[0]):
         self.inputs = inputs
         self.outputs = outputs
         self.hidden_layers = hidden_layers
-        self.nodes = nodes
         brain = {}
         self.brain = brain
         brain['inputs'] = {}

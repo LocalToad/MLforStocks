@@ -18,7 +18,7 @@ data.head()
 portfolio = {'stocks': {}, 'cash': start_cash}
 dict(portfolio)
 for ticker in tickers:
-    portfolio['stocks'][ticker] = (0,0)
+    portfolio['stocks'][ticker] = [0,0]
 
 def get_value(portfolio):
     cash = portfolio['cash']
@@ -38,6 +38,7 @@ def get_real(portfolio,data,day_id):
 
 def stock_market(data,tickers,portfolio):
     length_data = len(list(data['Close'][tickers[0]]))
+    max_high = max(list(data['High'][tickers[0]]))
     start_cash = portfolio['cash']
     portfolio_value = [start_cash, start_cash]
     for i in range(length_data):
@@ -54,11 +55,13 @@ def stock_market(data,tickers,portfolio):
             ups_open = list(data['Open']['UPS'])[i]
 
             day_data = (cmcsa_high, cmcsa_low, cmcsa_close, cmcsa_open,
-                        ups_high, ups_low, ups_close, ups_open,
+                        #ups_high, ups_low, ups_close, ups_open,
                         )
 
-            actions = rlmodel.rlmodel(data, day_data, portfolio, i)
-            portfolio = action_handler.action_handler(actions,portfolio,data,i,tickers)
+            print(day_data,portfolio)
+            actions = input('action:  ')#rlmodel.rlmodel(data, day_data, portfolio, i)
+            action = [float(actions),0]
+            portfolio = action_handler.action_handler(action,portfolio,data,i,tickers)
             if i == 1:
                 portfolio_value[1] = get_value(portfolio)
             else:
