@@ -1,14 +1,40 @@
+import random
 
-def rlmodel(all_data, day_data, portfolio, day_id):
-    #idk how to write this yet but we are gonna pretend this exists
+import numpy as np
 
-    cmcsa=0
-    ups=0
-    actions = (cmcsa, ups)
-    #the stock name will be -1 to 1
-    #if negative that means sell
-    #if positive that means buy
-    #0-1 is a percent scale, the action handler will take 100 percent as the max allowed value
-    #for selling that would be 100% = all stocks owned
-    #for buying that would be 100% = cash / price_of_stock
-    return actions
+
+
+class Agent:
+    def __init__(self, inputs, outputs, hidden_layers=0, nodes=0):
+        self.inputs = inputs
+        self.outputs = outputs
+        self.hidden_layers = hidden_layers
+        self.nodes = nodes
+        brain = {}
+        self.brain = brain
+        brain['inputs'] = {}
+        if outputs > 0:
+            self.generate_nodes(0,inputs+1,nodes)
+            for i in range(hidden_layers):
+                brain[f'layer{i}'] = {}
+                if i < hidden_layers:
+                    self.generate_nodes(i,nodes,nodes)
+                else:
+                    self.generate_nodes(i,nodes,outputs)
+        else:
+            self.generate_nodes(0,inputs+1,outputs)
+        self.generate_outputs(outputs)
+
+
+    def generate_nodes(cls, layer, num_nodes, num_outputs):
+        for node in range(num_nodes):
+            cls.brain[layer][f'node{layer}{node}'] = {}
+            cls.brain[layer][f'node{layer}{node}']['output_biases'] = []
+            for output in range(num_outputs):
+                random_bias = random.uniform(-1, 1)
+                cls.brain[layer][f'node{layer}{node}']['output_biases'].append(random_bias)
+
+    def generate_outputs(cls, outputs):
+        for node in range(outputs):
+            cls.brain[f'output{node}'][''] = []
+
