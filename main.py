@@ -63,7 +63,6 @@ def stock_market(data,tickers,portfolio):
             day_data = [cmcsa_high, cmcsa_low, cmcsa_close, cmcsa_open,
                         #ups_high, ups_low, ups_close, ups_open,
                         ]
-
             print(day_data,portfolio)
             a=rlmodel.Actor(1,16)
             inputs=format_inputs(day_data,portfolio)
