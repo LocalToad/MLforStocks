@@ -35,29 +35,32 @@ import tf_keras
 from tf_keras.models import Sequential, load_model
 from tf_keras.layers import Dense
 
-class actor():
+class Actor():
 
     def __init__(self, stocks,layer1):
         super().__init__()
         input_length = (7*stocks)+1
         output_length = 2*stocks
         self.model = Sequential()
-        self.model.add(tf_keras.layers.Dense(units=layer1, activation='leaky_relu', input_dim=input_length))
-        self.model.add(tf_keras.layers.Dense(units=layer1, activation='leaky_relu'))
-        self.model.add(tf_keras.layers.Dense(units=output_length, activation='softmax'))
+        self.input = tf_keras.layers.Input(shape=(input_length,))
+        self.layer0 = tf_keras.layers.Dense(units=layer1, activation='leaky_relu')(self.input)
+        self.layer1 = tf_keras.layers.Dense(units=layer1, activation='leaky_relu')(self.layer0)
+        self.output = tf_keras.layers.Dense(units=output_length, activation='softmax')
 
     def call(self, inputs):
-        x = self.model.output(inputs)
+        x = tf_keras.models.Model(inputs=self.input, outputs=self.output)
+        return x.output(inputs)
 
     def summary(self):
         self.model.summary()
 
 
-class critic():
+class Critic():
     def __init__(self, stocks,layer1):
         super().__init__()
         input_length = (9*stocks)+1
         self.model = Sequential()
+        self.model.add(tf_keras.layers.Input(shape=(input_length,)))
         self.model.add(tf_keras.layers.Dense(units=layer1, activation='leaky_relu', input_dim=input_length))
         self.model.add(tf_keras.layers.Dense(units=layer1, activation='leaky_relu'))
         self.model.add(tf_keras.layers.Dense(units=1, activation='leaky_relu'))
@@ -68,7 +71,7 @@ class critic():
     def summary(self):
         self.model.summary()
 
-a = actor(1,16)
-c = critic(1,16)
-a.summary()
-c.summary()
+#a = Actor(1,16)
+#c = Critic(1,16)
+#a.summary()
+#c.summary()

@@ -36,6 +36,12 @@ def get_real(portfolio,data,day_id):
     real = cash + stocks_value
     return real
 
+def format_inputs(day_data,portfolio):
+    list = day_data.copy()
+    list.append(portfolio['cash'])
+    list.append(portfolio['stocks']['CMCSA'][0])
+    list.append(portfolio['stocks']['CMCSA'][1])
+    return list
 def stock_market(data,tickers,portfolio):
     length_data = len(list(data['Close'][tickers[0]]))
     max_high = max(list(data['High'][tickers[0]]))
@@ -54,12 +60,15 @@ def stock_market(data,tickers,portfolio):
             ups_close = list(data['Close']['UPS'])[i-1],
             ups_open = list(data['Open']['UPS'])[i]
 
-            day_data = (cmcsa_high, cmcsa_low, cmcsa_close, cmcsa_open,
+            day_data = [cmcsa_high, cmcsa_low, cmcsa_close, cmcsa_open,
                         #ups_high, ups_low, ups_close, ups_open,
-                        )
+                        ]
 
             print(day_data,portfolio)
-            actions = input('action:  ')#rlmodel.rlmodel(data, day_data, portfolio, i)
+            a=rlmodel.Actor(1,16)
+            inputs=format_inputs(day_data,portfolio)
+            print(a.call(inputs))
+            actions = input('action:  ')
             action = [float(actions),0]
             portfolio = action_handler.action_handler(action,portfolio,data,i,tickers)
             if i == 1:
