@@ -35,7 +35,7 @@ import tf_keras
 from tf_keras.models import Sequential, load_model
 from tf_keras.layers import Dense
 
-class actor(tf_keras.layers):
+class actor():
 
     def __init__(self, stocks,layer1):
         super().__init__()
@@ -53,7 +53,7 @@ class actor(tf_keras.layers):
         self.model.summary()
 
 
-class critic(tf_keras.layers):
+class critic():
     def __init__(self, stocks,layer1):
         super().__init__()
         input_length = (9*stocks)+1
