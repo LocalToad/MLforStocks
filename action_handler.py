@@ -9,12 +9,10 @@ def max_buy(ticker,cash,data,day_id):
 
 
 
-def action_handler(actions, portfolio, stock_data, day_id, tickers):
-    buy_prob = max(actions)
-    sell_prob = min(actions)
-    if buy_prob > -sell_prob:
-        buy_amt=portfolio['cash']/list(stock_data['Open'][tickers[actions.index(buy_prob)]])[day_id]
-        portfolio=market_sim.buy_request(buy_amt,portfolio,tickers[actions.index(buy_prob)],stock_data,day_id)
-    elif -sell_prob > buy_prob:
-        portfolio=market_sim.sell_request(portfolio['stocks'][tickers[actions.index(sell_prob)]][0],portfolio,tickers[actions.index(sell_prob)],stock_data,day_id)
+def action_handler(action, portfolio, stock_data, day_id, tickers):
+    if action > 0:
+        if action % 2 == 0:
+            portfolio=market_sim.sell_request(1,portfolio,tickers[int(((1-action)/2)-1)],stock_data,day_id)
+        else:
+            portfolio=market_sim.buy_request(1,portfolio,tickers[int((action/2)-1)],stock_data,day_id)
     return portfolio
