@@ -8,7 +8,7 @@ import critic_model
 #set the tickers you want the bot to watch
 tickers = ["CMCSA"]
 start_date = "2000-01-01"
-end_date = "2010-12-31"
+end_date = "2024-12-31"
 
 start_cash = 50
 #download the data
@@ -78,7 +78,6 @@ def stock_market(data,tickers,portfolio):
             print(inputs)
             inputs = rlmodel.fix(inputs)
             actor_out = rlmodel.forward_prop(actor, inputs)
-
             critic_in = list(inputs.copy().T)
             critic_in[0] = list(critic_in[0])
             for output in actor_out[5]:
@@ -95,11 +94,14 @@ def stock_market(data,tickers,portfolio):
             else:
                 portfolio_value.append(get_value(portfolio))
                 portfolio_real.append(get_real(portfolio,data,i))
-            #IMPORTANT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            #change is being set to the variable
-            #the varibale change is set to will determine what the critic optimizes for
+
+            #IMPORTANT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            #the varibale change is used to train the critic model
             change = (portfolio_real[i]/portfolio_real[i-1])-1
             error = change - critic_out[5]
+            #IMPORTANT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            #the variable error is used to train the ator model and show be derived from the critic model
+
             critic_stick = rlmodel.backprop(critic_out,critic,critic_in,change,1)
             critic = rlmodel.update_params(critic,critic_stick,0.01)
             actor_corrected_action = list(np.zeros((len(actor_out[5]),1)))
