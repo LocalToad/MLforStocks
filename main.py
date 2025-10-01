@@ -55,8 +55,9 @@ def stock_market(data,tickers,portfolio):
     start_cash = portfolio['cash']
     portfolio_value = [start_cash, start_cash]
     portfolio_real = [start_cash, start_cash]
-    actor = rlmodel.init_params(((6*len(tickers))+1),16,16,((2*len(tickers))+1))
-    critic = rlmodel.init_params(((8*len(tickers))+2),16,16,1)
+    critic_guesses = [0,0]
+    actor = rlmodel.init_params(((6*len(tickers))+1),128,128,((2*len(tickers))+1))
+    critic = rlmodel.init_params(((8*len(tickers))+2),128,128,1)
     for i in range(length_data):
         if i == 0:
             continue
@@ -91,25 +92,40 @@ def stock_market(data,tickers,portfolio):
             if i == 1:
                 portfolio_value[1] = get_value(portfolio)
                 portfolio_real[1] = get_real(portfolio,data,i)
+                critic_guesses[1] = list(list(critic_out)[5])[0]
             else:
                 portfolio_value.append(get_value(portfolio))
                 portfolio_real.append(get_real(portfolio,data,i))
+                critic_guesses.append(list(list(critic_out)[5])[0])
 
             #IMPORTANT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             #the varibale change is used to train the critic model
-            change = (portfolio_real[i]/portfolio_real[i-1])-1
-            error = change - critic_out[5]
+            reward = portfolio_value[i]-portfolio_value[i-1]
+            td = reward + (critic_guesses[i]*.5) - critic_guesses[i-1]
+            error = td - critic_out[5]
             #IMPORTANT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             #the variable error is used to train the ator model and show be derived from the critic model
 
-            critic_stick = rlmodel.backprop(critic_out,critic,critic_in,change,1)
+            critic_stick = rlmodel.backprop(critic_out,critic,critic_in,td,1)
             critic = rlmodel.update_params(critic,critic_stick,0.01)
             actor_corrected_action = list(np.zeros((len(actor_out[5]),1)))
-            actor_corrected_action[action] = actor_out[5][action]*((list(list(error)[0])[0]*0.01)+1)
             guideline = []
             for a in actor_corrected_action:
                 guideline.append(list(a)[0])
+            if error > 0:
+                guideline[action] = 1
+            elif error < 0:
+                for a in range(0,len(guideline)):
+                    if a != action:
+                        guideline[a] = float(1/(len(guideline)-1))
+            elif error == 0:
+                for a in range(0,len(guideline)):
+                    guideline[a] = float(1/len(guideline))
             guideline = rlmodel.fix(guideline)
+
+
+
+
             actor_stick = rlmodel.backprop(actor_out,actor,inputs,guideline)
             actor = rlmodel.update_params(actor,actor_stick,0.01)
             print('portfolios real value is')

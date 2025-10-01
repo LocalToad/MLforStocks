@@ -30,8 +30,8 @@ def sell_request(sell_amt,portfolio, ticker, data, day_id):
     low = list(data['Low'][ticker])[day_id]
     sell_price = randfloat(low, high,random.random())
     sell_order = sell_amt * sell_price
-    if sell_order <= portfolio['stocks'][ticker][0]:
-        cash += sell_order
+    if sell_amt <= portfolio['stocks'][ticker][0]:
+        portfolio['cash'] += sell_order
         portfolio['stocks'][ticker][1] -= (portfolio['stocks'][ticker][1] / portfolio['stocks'][ticker][0]) * sell_amt
         portfolio['stocks'][ticker][0] -= sell_amt
 

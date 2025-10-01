@@ -33,7 +33,7 @@
 #Actor Learns from mistake
 import numpy as np
 import pandas as pd
-
+import math
 
 
 def pick_action(actions):
@@ -60,24 +60,41 @@ def init_params(inputs,layer1_nodes,layer2_nodes,outputs):
 def leaky_relu(Z,a=0.01):
     return np.maximum((a*Z),Z)
 
+def relu(Z):
+    return np.maximum(0,Z)
+
 def exp(Z):
     a = np.exp(Z)
-    for b in a:
-        if list(b)[0] == float('inf'):
-            list(b)[0] = 1
-        elif list(b)[0] == float('-inf'):
-            list(b)[0] = 0
+    for b in list(a):
+        if math.isinf(list(b)[0]):
+            c = []
+            for d in list(a):
+                if d == b:
+                    c.append(1)
+                else:
+                    c.append(list(d)[0])
+            c = fix(c)
+            return c
     return a
 
 def softmax(Z):
     a = exp(Z)
-    b = exp(Z)
-    c = np.sum(b)
+    c = np.sum(a)
+    if c == float('inf'):
+        c = []
+        for n in list(a):
+            if list(n)[0] == float('inf'):
+                c.append(1)
+            else:
+                c.append(list(n)[0])
     d = a/c
     return d
 #array=[-218.71424335,709.66636126,844.82633888]
-#array = fix(array)
-#softmax(array)
+#array = [849.92891262,511.03340975,-440.49561304]
+array = [-359.65931787,935.96406342,-119.38550845]
+array = fix(array)
+softmax(array)
+
 
 def deriv_leaky_relu(Z, a=0.01):
     dZ = np.ones((1, Z.size))  # Initialize derivative with 1s for positive values
@@ -90,13 +107,7 @@ def forward_prop(actor,X):
     Z2 = actor[2].dot(A1) + actor[3]
     A2 = leaky_relu(Z2)
     Z3 = actor[4].dot(A2) + actor[5]
-    action = pick_action(Z3)
-    a3 = list(np.zeros((len(Z3),1)))
-    a3[action][0] = 1
-    A3 =[]
-    for a in a3:
-        A3.append(list(a)[0])
-    A3 = fix(A3)
+    A3 = softmax(Z3)
     out = [Z1, A1, Z2, A2, Z3, A3]
     return out
 
