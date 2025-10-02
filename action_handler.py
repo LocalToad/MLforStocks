@@ -9,32 +9,10 @@ def max_buy(ticker,cash,data,day_id):
 
 
 
-def action_handler(actions, portfolio, stock_data, day_id, tickers):
-    #actions look like a list of all the stocks as a variable
-    #that variable is between -1 and 1
-    buy = []
-    sell = []
-    for action in actions:
-        ticker = tickers[actions.index(action)]
-        if action > 0:
-            buy.append(ticker)
-        if action < 0:
-            sell.append(ticker)
-    for ticker in sell:
-        total = portfolio['stocks'][ticker][0]
-        if total > 0:
-            portfolio = market_sim.sell_request(total,portfolio,ticker,stock_data,day_id)
+def action_handler(action, portfolio, stock_data, day_id, tickers):
+    if action > 0:
+        if action % 2 == 0:
+            portfolio=market_sim.sell_request(1,portfolio,tickers[int(((1-action)/2)-1)],stock_data,day_id)
         else:
-            continue
-    n=len(buy)
-    cash_per_stock = portfolio['cash']/n
-    for ticker in buy:
-        buy_amount = cash_per_stock/list(stock_data['Open'][ticker])[day_id]
-        if buy_amount > 0:
-            portfolio = market_sim.buy_request(buy_amount,portfolio,ticker,stock_data,day_id)
-        else:
-            continue
-
-
-
+            portfolio=market_sim.buy_request(1,portfolio,tickers[int((action/2)-1)],stock_data,day_id)
     return portfolio
