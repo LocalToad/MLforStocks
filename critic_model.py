@@ -15,4 +15,3 @@ def forward_prop(critic, X):
     Z3 = critic[4].dot(A2) + critic[5]
     A3 = np.tanh(Z3)
     return [Z1, A1, Z2, A2, Z3, A3]
-

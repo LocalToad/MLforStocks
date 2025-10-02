@@ -1,6 +1,8 @@
 
 import numpy as np
 import yfinance as yf
+from pyparsing import alphas
+
 import rlmodel
 import action_handler
 import critic_model
@@ -56,8 +58,10 @@ def stock_market(data,tickers,portfolio):
     portfolio_value = [start_cash, start_cash]
     portfolio_real = [start_cash, start_cash]
     critic_guesses = [0,0]
-    actor = rlmodel.init_params(((6*len(tickers))+1),128,128,((2*len(tickers))+1))
-    critic = rlmodel.init_params(((8*len(tickers))+2),128,128,1)
+    n=16
+    actor = rlmodel.init_params(((6*len(tickers))+1),n,n,((2*len(tickers))+1))
+    critic = rlmodel.init_params(((8*len(tickers))+2),n,n,1)
+    alpha = 0.01
     for i in range(length_data):
         if i == 0:
             continue
@@ -100,14 +104,14 @@ def stock_market(data,tickers,portfolio):
 
             #IMPORTANT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             #the varibale change is used to train the critic model
-            reward = portfolio_value[i]-portfolio_value[i-1]
+            reward = portfolio_real[i]-portfolio_real[i-1]
             td = reward + (critic_guesses[i]*.5) - critic_guesses[i-1]
             error = td - critic_out[5]
             #IMPORTANT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             #the variable error is used to train the ator model and show be derived from the critic model
 
             critic_stick = rlmodel.backprop(critic_out,critic,critic_in,td,1)
-            critic = rlmodel.update_params(critic,critic_stick,0.01)
+            critic = rlmodel.update_params(critic,critic_stick,alpha)
             actor_corrected_action = list(np.zeros((len(actor_out[5]),1)))
             guideline = []
             for a in actor_corrected_action:
@@ -127,7 +131,7 @@ def stock_market(data,tickers,portfolio):
 
 
             actor_stick = rlmodel.backprop(actor_out,actor,inputs,guideline)
-            actor = rlmodel.update_params(actor,actor_stick,0.01)
+            actor = rlmodel.update_params(actor,actor_stick,alpha)
             print('portfolios real value is')
             print(portfolio_real[i])
             print('portfolios static value is')
